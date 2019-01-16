@@ -492,7 +492,8 @@ class TimePicker extends React.Component<Props, State> {
         const maxTimeInt = this.convertTimeToSeconds(maxTime) || ONE_DAY_IN_SECONDS;
 
         const suggestions = [];
-        while (this.props.includeMax ? nextSuggestion <= maxTimeInt : nextSuggestion < maxTimeInt) {
+        while (this.props.includeMax && maxTimeInt < ONE_DAY_IN_SECONDS ?
+            nextSuggestion <= maxTimeInt : nextSuggestion < maxTimeInt) {
             suggestions.push(nextSuggestion);
             nextSuggestion += stepInSeconds;
         }
