@@ -26,7 +26,8 @@ interface State {
     suggestionsPosition: {
         left: number,
         top: number
-    } | null
+    } | null,
+    highlightedSuggestionIndex: number | null
 }
 
 const ONE_DAY_IN_SECONDS = 86400;
@@ -67,8 +68,17 @@ class TimePicker extends React.Component<Props, State> {
             inputValue: seconds ? this.convertSecondsToFormattedString(seconds) : '',
             showSuggestions: false,
             suggestions: this.createSuggestions(step, minTime, maxTime),
-            suggestionsPosition: null
+            suggestionsPosition: null,
+            highlightedSuggestionIndex: null
         }
+    }
+
+    componentDidMount() {
+        document.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.onKeyDown);
     }
 
     onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,8 +88,12 @@ class TimePicker extends React.Component<Props, State> {
             inputValue: e.target.value,
             value
         }, () => {
-            if (this.state.showSuggestions) {
-                this.scrollSuggestionList();
+            const { showSuggestions } = this.state;
+
+            if (showSuggestions) {
+                this.scrollSuggestionList(value);
+            } else {
+                this.showSuggestions();
             }
 
             this.onChange(value);
@@ -99,6 +113,12 @@ class TimePicker extends React.Component<Props, State> {
      */
     onInputFocus = () => {
         this.showSuggestions();
+    };
+
+    onInputClick = () => {
+        if (!this.state.showSuggestions) {
+            this.showSuggestions();
+        }
     };
 
     /**
@@ -147,6 +167,91 @@ class TimePicker extends React.Component<Props, State> {
             this.hideSuggestions();
             this.onChange(seconds);
         })
+    };
+
+    onArrowUpDown = (direction: 'up' | 'down') => {
+        const {
+            value,
+            suggestions,
+            highlightedSuggestionIndex : index
+        } = this.state;
+
+        let newIndex = 0;
+
+        if (index === null) {
+            if (value) {
+                const valueIndex = suggestions.findIndex(s => this.isNearestSuggestion(value, s));
+                newIndex = direction === 'down' ? valueIndex + 1 : valueIndex - 1;
+            } else {
+                newIndex = 0;
+            }
+        } else {
+            newIndex = direction === 'down' ? index + 1 : index - 1;
+        }
+
+        if (newIndex < 0) {
+            newIndex = 0;
+        }
+
+        if (newIndex === suggestions.length) {
+            newIndex = suggestions.length - 1;
+        }
+
+        if (newIndex !== index) {
+            this.setState({
+                highlightedSuggestionIndex: newIndex
+            }, () => {
+                this.scrollSuggestionList(this.state.suggestions[newIndex]);
+            })
+        }
+    };
+
+    onKeyDown = (e: KeyboardEvent) => {
+        if (this.inputEl !== document.activeElement) {
+            return;
+        }
+
+        switch (e.key) {
+            case 'Escape':
+                this.hideSuggestions();
+                break;
+            case 'Enter': {
+                const {
+                    highlightedSuggestionIndex,
+                    value,
+                    suggestions
+                } = this.state;
+
+                if (!highlightedSuggestionIndex) {
+                    this.setState({
+                        inputValue: this.convertSecondsToFormattedString(value)
+                    })
+                } else {
+                    const value = suggestions[highlightedSuggestionIndex];
+                    this.setState({
+                        value,
+                        inputValue: this.convertSecondsToFormattedString(value)
+                    });
+                    this.onChange(value);
+                }
+
+                this.hideSuggestions();
+                break;
+            }
+            case 'ArrowUp': {
+                this.onArrowUpDown('up');
+                break;
+            }
+            case 'ArrowDown': {
+                if (this.state.showSuggestions) {
+                    this.onArrowUpDown('down');
+                } else {
+                    this.showSuggestions();
+                }
+                break;
+            }
+            default:
+        }
     };
 
     /**
@@ -297,7 +402,8 @@ class TimePicker extends React.Component<Props, State> {
             showSuggestions: true,
         }, () => {
             this.positionSuggestions();
-            this.scrollSuggestionList();
+            this.scrollSuggestionList(this.state.value);
+
             document.addEventListener('click', this.hideSuggestionsOnOutsideClick);
 
             if (this.props.hideOnScroll) {
@@ -312,7 +418,8 @@ class TimePicker extends React.Component<Props, State> {
     hideSuggestions = () => {
         this.setState({
             showSuggestions: false,
-            suggestionsPosition: null
+            suggestionsPosition: null,
+            highlightedSuggestionIndex: null
         }, () => {
             document.removeEventListener('click', this.hideSuggestionsOnOutsideClick);
 
@@ -349,10 +456,9 @@ class TimePicker extends React.Component<Props, State> {
     /**
      * Scrolls suggestion list to highlighted suggestion
      */
-    scrollSuggestionList = () => {
+    scrollSuggestionList = (value: number) => {
         const {
             suggestions,
-            value,
             showSuggestions
         } = this.state;
 
@@ -411,17 +517,22 @@ class TimePicker extends React.Component<Props, State> {
         return seconds -= offset;
     };
 
+    isNearestSuggestion = (value: number, suggestion: number) => {
+        return Math.abs(value - suggestion) < (this.props.step * 30 / 2);
+    };
+
     render() {
         const {
-            step,
-            className
+            className,
+            name
         } = this.props;
 
         const {
             suggestions,
             value,
             showSuggestions,
-            suggestionsPosition
+            suggestionsPosition,
+            highlightedSuggestionIndex
         } = this.state;
 
         return (
@@ -432,6 +543,7 @@ class TimePicker extends React.Component<Props, State> {
                     onChange={this.onInputChange}
                     onBlur={this.onInputBlur}
                     onFocus={this.onInputFocus}
+                    onClick={this.onInputClick}
                     ref={el => { this.inputEl = el; }}
                 />
                 {((showSuggestions && suggestions.length > 0) || this.suggestionsWrapperEl) && (
@@ -448,9 +560,12 @@ class TimePicker extends React.Component<Props, State> {
                             {suggestions.map((suggestion: number, i: number) => (
                                 <button
                                     value={suggestion}
-                                    key={suggestion}
-                                    className={`time-picker__suggestion ${value && Math.abs(value - suggestion) < (step * 30 / 2) ?
-                                        'time-picker__suggestion_selected' : ''}`}
+                                    key={`${name}-${suggestion}`}
+                                    className={`time-picker__suggestion ${
+                                        (highlightedSuggestionIndex !== null && highlightedSuggestionIndex === i) ||
+                                        (highlightedSuggestionIndex === null && value &&
+                                            this.isNearestSuggestion(value, suggestion)) ?
+                                                'time-picker__suggestion_selected' : ''}`}
                                     onClick={this.onSuggestionSelect}
                                     ref={el => {
                                         if (i === 0) {
