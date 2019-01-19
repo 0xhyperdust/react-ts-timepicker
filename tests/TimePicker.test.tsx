@@ -7,19 +7,24 @@ import TimePicker from '../src/TimePicker';
 const INPUT_CLASS = '.time-picker__input';
 const SUGGESTIONS_CLASS = '.time-picker__suggestion-list';
 const SUGGESTION_CLASS = '.time-picker__suggestion';
+const SUGGESTION_SELECTED_CLASS = '.time-picker__suggestion_selected';
+
+interface EventObject {
+    [key: string]: any;
+}
 
 describe('<TimePicker />', () => {
-    // let wrapper: ReactWrapper;
-    // let instance: TimePicker;
-    //
-    // beforeEach(() => {
-    //     wrapper = mount(<TimePicker value={null} name="test" />);
-    //     instance = wrapper.instance() as TimePicker;
-    // });
-    //
-    // afterEach(() => {
-    //     wrapper.unmount();
-    // });
+    let events = {} as EventObject;
+
+    beforeEach(() => {
+        document.addEventListener = jest.fn((event, cb) => {
+            events[event] = cb;
+        });
+    });
+
+    afterEach(() => {
+        document.addEventListener = null;
+    });
 
     test('converts time to seconds', () => {
         const wrapper = shallow(<TimePicker value={null} name="test" />);
@@ -153,9 +158,7 @@ describe('<TimePicker />', () => {
 
         wrapper.find(INPUT_CLASS).simulate('focus');
 
-        const ev = document.createEvent('Events');
-        ev.initEvent('click', true, false);
-        document.body.dispatchEvent(ev);
+        events.click({ target: document.body });
 
         expect(wrapper.state('showSuggestions')).toEqual(false);
         wrapper.unmount();
@@ -174,6 +177,8 @@ describe('<TimePicker />', () => {
 
         // suggestions are scrolled to show previous suggestion as well
         expect(suggestionsWrapperEl.scrollTop).toEqual(suggestionEl.offsetHeight * 2);
+
+        wrapper.unmount();
     });
 
     test('scrolls suggestion list on input change', () => {
@@ -192,6 +197,8 @@ describe('<TimePicker />', () => {
         const { suggestionEl, suggestionsWrapperEl } = instance;
 
         expect(suggestionsWrapperEl.scrollTop).toEqual(suggestionEl.offsetHeight * 2);
+
+        wrapper.unmount();
     });
 
     test('calls onChange on input change with parsed or non-parsed value', () => {
@@ -233,7 +240,9 @@ describe('<TimePicker />', () => {
 
         wrapper.find(INPUT_CLASS).simulate('focus');
         wrapper.find(SUGGESTION_CLASS).at(1).simulate('click');
-        expect(onChangeSpy.mock.calls[0][0]).toEqual('12:30am')
+        expect(onChangeSpy.mock.calls[0][0]).toEqual('12:30am');
+
+        wrapper.unmount();
     });
 
     test('returns Date if Date was initially passed as value', () => {
@@ -253,6 +262,8 @@ describe('<TimePicker />', () => {
         wrapper.find(INPUT_CLASS).simulate('change', { target: { value: '2:00pm' } });
         const result = onChangeSpy.mock.calls[0][0];
         expect(result.getTime()).toEqual(expectedDate.getTime());
+
+        wrapper.unmount();
     });
 
     test('hides suggestion on scroll if corresponding option is set', () => {
@@ -294,6 +305,8 @@ describe('<TimePicker />', () => {
 
         input.simulate('change', { target: { value: '1:55am' } });
         expect(onChangeSpy.mock.calls[1][0]).toEqual('2:00am');
+
+        wrapper.unmount();
     });
 
     test('parses input value on blur', () => {
@@ -307,5 +320,202 @@ describe('<TimePicker />', () => {
         wrapper.find(INPUT_CLASS).simulate('change', { target: { value: '1am' } });
         wrapper.find(INPUT_CLASS).simulate('blur');
         expect(wrapper.state('inputValue')).toEqual('1:00am');
+
+        wrapper.unmount();
+    });
+
+    test('changes highlighted suggestion on keydown arrow up and down', () => {
+        const wrapper = mount(
+            <TimePicker
+                value={null}
+                name="test"
+            />
+        );
+
+        const instance = wrapper.instance() as TimePicker;
+        instance.inputEl.focus();
+        wrapper.find(INPUT_CLASS).simulate('focus');
+
+        events.keydown({ key: 'ArrowDown' });
+        events.keydown({ key: 'ArrowDown' });
+
+        expect(document.querySelectorAll(SUGGESTION_SELECTED_CLASS).length).toEqual(1);
+        expect(wrapper.state('highlightedSuggestionIndex')).toEqual(1);
+
+        events.keydown({ key: 'ArrowUp' });
+
+        expect(wrapper.state('highlightedSuggestionIndex')).toEqual(0);
+
+        wrapper.unmount();
+    });
+
+
+    test('does not allow to highlight suggestion beyond suggestion list on arrow up/down', () => {
+        const wrapper = mount(
+            <TimePicker
+                value={null}
+                name="test"
+            />
+        );
+
+        const instance = wrapper.instance() as TimePicker;
+        instance.inputEl.focus();
+        wrapper.find(INPUT_CLASS).simulate('focus');
+
+        const suggestions: Array<number> = wrapper.state('suggestions');
+
+        for (let i = 0; i < suggestions.length + 5; i++) {
+            events.keydown({ key: 'ArrowDown' })
+        }
+
+        expect(wrapper.state('highlightedSuggestionIndex')).toEqual(suggestions.length - 1);
+
+        for (let i = 0; i < suggestions.length + 5; i++) {
+            events.keydown({ key: 'ArrowUp' })
+        }
+
+        expect(wrapper.state('highlightedSuggestionIndex')).toEqual(0);
+
+        wrapper.unmount();
+    });
+
+    test('highlights suggestion on arrow up/down based on value', () => {
+        const wrapper = mount(
+            <TimePicker
+                value="0:30"
+                name="test"
+            />
+        );
+
+        const instance = wrapper.instance() as TimePicker;
+        instance.inputEl.focus();
+        wrapper.find(INPUT_CLASS).simulate('focus');
+
+        events.keydown({ key: 'ArrowDown' });
+
+        expect(wrapper.state('highlightedSuggestionIndex')).toEqual(2);
+    });
+
+    test('selects suggestion on enter', () => {
+        const wrapper = mount(
+            <TimePicker
+                value={null}
+                name="test"
+            />
+        );
+
+        const instance = wrapper.instance() as TimePicker;
+        instance.inputEl.focus();
+        wrapper.find(INPUT_CLASS).simulate('focus');
+
+        events.keydown({ key: 'ArrowDown' });
+        events.keydown({ key: 'ArrowDown' });
+
+        const highlightedSuggestionIndex: number = wrapper.state('highlightedSuggestionIndex');
+        const suggestions: Array<number> = wrapper.state('suggestions');
+        const highlightedSuggestionValue = suggestions[highlightedSuggestionIndex];
+
+        events.keydown({ key: 'Enter' });
+
+        expect(wrapper.state('value')).toEqual(highlightedSuggestionValue);
+
+        wrapper.unmount();
+    });
+
+    test('parses input value on enter', () => {
+        const wrapper = mount(
+            <TimePicker
+                value={null}
+                name="test"
+            />
+        );
+
+        const instance = wrapper.instance() as TimePicker;
+        instance.inputEl.focus();
+        wrapper.find(INPUT_CLASS).simulate('change', { target: { value: '442' } });
+        events.keydown({ key: 'Enter' });
+        expect(wrapper.state('inputValue')).toEqual('4:42am');
+    });
+
+    test('shows suggestions on click if input is focused but suggestion are hidden', () => {
+        const wrapper = mount(
+            <TimePicker
+                value={null}
+                name="test"
+            />
+        );
+
+        const instance = wrapper.instance() as TimePicker;
+        instance.inputEl.focus();
+        wrapper.find(INPUT_CLASS).simulate('focus');
+        events.keydown({ key: 'Enter' });
+
+        wrapper.find(INPUT_CLASS).simulate('click');
+
+        expect(wrapper.state('showSuggestions')).toEqual(true);
+
+        wrapper.unmount();
+    });
+
+    test('shows suggestions on arrow down if input is focused but suggestions are hidden', () => {
+        const wrapper = mount(
+            <TimePicker
+                value={null}
+                name="test"
+            />
+        );
+
+        const instance = wrapper.instance() as TimePicker;
+        instance.inputEl.focus();
+        wrapper.find(INPUT_CLASS).simulate('focus');
+
+        events.keydown({ key: 'ArrowDown' });
+        events.keydown({ key: 'ArrowDown' });
+        events.keydown({ key: 'Enter' });
+
+        expect(wrapper.state('showSuggestions')).toEqual(false);
+
+        events.keydown({ key: 'ArrowDown' });
+
+        expect(wrapper.state('showSuggestions')).toEqual(true);
+
+        wrapper.unmount();
+    });
+
+    test('closes suggestions on escape keydown', () => {
+        const wrapper = mount(
+            <TimePicker
+                value={null}
+                name="test"
+            />
+        );
+
+        const instance = wrapper.instance() as TimePicker;
+        instance.inputEl.focus();
+        wrapper.find(INPUT_CLASS).simulate('focus');
+
+        expect(wrapper.state('showSuggestions')).toEqual(true);
+
+        events.keydown({ key: 'Escape' });
+
+        expect(wrapper.state('showSuggestions')).toEqual(false);
+
+        wrapper.unmount();
+    });
+
+    test('ignores keydown events if input is not focused', () => {
+        const wrapper = mount(
+            <TimePicker
+                value={null}
+                name="test"
+            />
+        );
+
+        events.keydown({ key: 'ArrowDown' });
+
+        expect(wrapper.state('showSuggestions')).toEqual(false);
+        expect(wrapper.state('highlightedSuggestionIndex')).toEqual(null);
+
+        wrapper.unmount();
     });
 });
