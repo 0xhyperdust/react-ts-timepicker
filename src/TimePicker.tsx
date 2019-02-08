@@ -108,9 +108,6 @@ class TimePicker extends React.Component<Props, State> {
         }
     };
 
-    /**
-     * Shows suggestion on input focus
-     */
     onInputFocus = () => {
         this.showSuggestions();
     };
@@ -394,9 +391,6 @@ class TimePicker extends React.Component<Props, State> {
         }
     };
 
-    /**
-     * Shows suggestion list
-     */
     showSuggestions = () => {
         this.setState({
             showSuggestions: true,
@@ -412,9 +406,6 @@ class TimePicker extends React.Component<Props, State> {
         })
     };
 
-    /**
-     * Closes suggestion list
-     */
     hideSuggestions = () => {
         this.setState({
             showSuggestions: false,
@@ -454,7 +445,7 @@ class TimePicker extends React.Component<Props, State> {
     };
 
     /**
-     * Scrolls suggestion list to highlighted suggestion
+     * Scrolls suggestion list to the highlighted suggestion
      */
     scrollSuggestionList = (value: number) => {
         const {
