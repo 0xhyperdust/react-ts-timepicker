@@ -1,5 +1,7 @@
 # React TS Timepicker
 
+[![npm version](https://badge.fury.io/js/react-ts-timepicker.svg)](https://badge.fury.io/js/react-ts-timepicker) ![dependencies](https://david-dm.org/andrianovp/react-ts-timepicker.svg) [![Build Status](https://travis-ci.org/andrianovp/react-ts-timepicker.svg?branch=master)](https://travis-ci.org/andrianovp/react-ts-timepicker) [![Coverage Status](https://coveralls.io/repos/andrianovp/react-ts-timepicker/badge.svg?branch=master)](https://coveralls.io/github/andrianovp/react-ts-timepicker?branch=master) 
+
 This is a lightweight and easy to use time picker without dependencies for React, written in Typescript and thoroughly covered by unit tests.
 
 <img src="demo.gif" width="250">
