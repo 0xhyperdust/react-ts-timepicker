@@ -1,5 +1,5 @@
 {
-  "name": "react-timepicker",
+  "name": "react-ts-timepicker",
   "version": "0.0.1",
   "description": "Simple timepicker for React",
   "main": "dist/index.js",
