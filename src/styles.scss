@@ -21,12 +21,13 @@
     line-height: 27px;
     font-size: 13px;
     padding: 0 5px;
-    border-color: #c9dee9;
     box-shadow: none;
     color: #263238;
     border-radius: 2px;
     -webkit-appearance: none;
     font-family: HelveticaNeue-Regular, Helvetica, Arial, sans-serif;
+    background-image: none;
+    border: 1px solid #68b1e9;
   }
 
   &__icon.add-on{
