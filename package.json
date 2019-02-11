@@ -14,6 +14,7 @@
     "build": "cross-env webpack --config webpack.config.js",
     "start": "cross-env webpack-dev-server --hot --config webpack.config.dev.js"
   },
+  "keywords": ["react-timecker", "timepicker", "react", "react-time"],
   "author": "Pavel Andrianov <mail@pavelandrianov.ru>",
   "license": "MIT",
   "devDependencies": {
