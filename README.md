@@ -1,6 +1,8 @@
 # React TS Timepicker
 
-This is a lightweight and easy to use time picker without depencies for React, written in Typescript and thoroughly covered by unit tests.
+This is a lightweight and easy to use time picker without dependencies for React, written in Typescript and thoroughly covered by unit tests.
+
+<img src="demo.gif" width="250">
 
 ## Installation
 
@@ -15,7 +17,7 @@ $ yarn add react-ts-timepicker
 
 ## Compatibility
 
-React 16+ (iternally it uses createPortal to append suggestion to the body element). Version for React 15 will be added later.
+React 16+ (internally it uses createPortal to append suggestions to the body element). Version for React 15 will be added soon.
 
 ## Basic usage
 
@@ -49,7 +51,7 @@ class App extends Component {
 Property | Type | Default value |Description
 ------------ | ------------- | ------------- | -------------
 value | string / Date / null | `null` | The value of the input.
-timeFormat | string | `hh:mma` | Similar to moment.js time format string. See below for more information.
+timeFormat | string | `hh:mma` | moment.js like time format string. See below for more information.
 name | string | `timepicker` | The name of the input.
 onChange | function | `() => {}` | Function called when the user picks a valid time. Type of the value will be the same as `value` has.
 step | number | `30` | Step in minutes between two suggestions.
@@ -69,5 +71,5 @@ Input | Example | Description
 `m mm` | `0..59` | Minutes
 `s ss` | `0..59` | Seconds
 
-## Lisence
-The MIT License.
+## License
+This project is licensed under the MIT License .
