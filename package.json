@@ -3,9 +3,6 @@
   "version": "0.0.1",
   "description": "Simple timepicker for React",
   "main": "dist/index.js",
-  "publishConfig": {
-    "access": "restricted"
-  },
   "scripts": {
     "prepublish": "rm -rf ./dist && npm run build",
     "test": "jest",
