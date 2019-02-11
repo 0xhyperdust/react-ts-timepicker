@@ -11,7 +11,12 @@
     "build": "cross-env webpack --config webpack.config.js",
     "start": "cross-env webpack-dev-server --hot --config webpack.config.dev.js"
   },
-  "keywords": ["react-timecker", "timepicker", "react", "react-time"],
+  "keywords": [
+    "react-timecker",
+    "timepicker",
+    "react",
+    "react-time"
+  ],
   "author": "Pavel Andrianov <mail@pavelandrianov.ru>",
   "license": "MIT",
   "devDependencies": {
@@ -21,6 +26,7 @@
     "autoprefixer": "^9.1.1",
     "awesome-typescript-loader": "^5.2.1",
     "babel-polyfill": "^6.26.0",
+    "coveralls": "^3.0.2",
     "cross-env": "^5.2.0",
     "css-loader": "^1.0.0",
     "enzyme": "^3.8.0",
