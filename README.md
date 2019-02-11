@@ -4,7 +4,7 @@
 
 This is a lightweight and easy to use time picker without dependencies for React, written in Typescript and thoroughly covered by unit tests.
 
-<img src="demo.gif" width="250">
+<img src="https://pavelandrianov.ru/react-ts-timepicker/demo.gif" width="250">
 
 ## Installation
 
