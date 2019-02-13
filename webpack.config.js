@@ -10,7 +10,7 @@ module.exports = {
   mode: 'production',
   output: {
     path: path.join(__dirname, './dist'),
-    filename: 'TimePicker.js',
+    filename: 'index.js',
     library: libraryName,
     libraryTarget: 'umd',
     publicPath: '/dist/',
