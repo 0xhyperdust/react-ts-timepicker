@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createPortal } from "react-dom";
+import { Portal } from "react-portal";
 
 import "./styles.scss";
 
@@ -540,7 +540,7 @@ class TimePicker extends React.Component<IProps, IState> {
                     ref={(el) => { this.inputEl = el; }}
                 />
                 {((showSuggestions && suggestions.length > 0) || this.suggestionsWrapperEl) && (
-                    createPortal(
+                    <Portal>
                         <div
                             className="time-picker__suggestion-list"
                             ref={(el) => { this.suggestionsWrapperEl = el; }}
@@ -558,7 +558,7 @@ class TimePicker extends React.Component<IProps, IState> {
                                         (highlightedSuggestionIndex !== null && highlightedSuggestionIndex === i) ||
                                         (highlightedSuggestionIndex === null && value &&
                                             this.isNearestSuggestion(value, suggestion)) ?
-                                                "time-picker__suggestion_selected" : ""}`}
+                                            "time-picker__suggestion_selected" : ""}`}
                                     onClick={this.onSuggestionSelect}
                                     ref={(el) => {
                                         if (i === 0) {
@@ -569,9 +569,8 @@ class TimePicker extends React.Component<IProps, IState> {
                                     {this.convertSecondsToFormattedString(suggestion)}
                                 </button>
                             ))}
-                        </div>,
-                        document.body,
-                    )
+                        </div>
+                    </Portal>
                 )}
             </div>
         );
