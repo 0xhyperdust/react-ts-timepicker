@@ -5,17 +5,16 @@ const webpack = require('webpack');
 module.exports = {
   devtool: 'source-map',
   mode: 'development',
-  entry: {
-    examples: [
-      './demo/index.tsx',
-    ],
-  },
+  entry: path.join(__dirname, "./src/TimePicker.tsx"),
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.json'],
   },
   output: {
-    path: path.join(__dirname, 'build'),
-    filename: 'static/[name].js',
+    path: path.join(__dirname, './dist'),
+    filename: 'index.js',
+    libraryTarget: 'umd',
+    publicPath: '/dist/',
+    umdNamedDefine: true
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -38,5 +37,6 @@ module.exports = {
   devServer: {
     contentBase: 'dist',
     port: 3001,
+    writeToDisk: true
   },
 };
