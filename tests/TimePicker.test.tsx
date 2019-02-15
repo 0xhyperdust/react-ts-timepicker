@@ -1,9 +1,11 @@
 import {
     mount,
     shallow,
+    ReactWrapper,
 } from "enzyme";
 import "jsdom-global/register";
 import * as React from "react";
+import { Portal } from "react-portal";
 
 import TimePicker from "../src/TimePicker";
 
@@ -242,7 +244,17 @@ describe("<TimePicker />", () => {
         );
 
         wrapper.find(INPUT_CLASS).simulate("focus");
-        wrapper.find(SUGGESTION_CLASS).at(1).simulate("click");
+
+        const portalInstance = wrapper.find(Portal).instance();
+        const portalWrapper = new ReactWrapper(
+            // @ts-ignore
+            portalInstance.props.children,
+            undefined,
+            // @ts-ignore
+            { attachTo: portalInstance.$portal },
+        );
+        portalWrapper.find(SUGGESTION_CLASS).at(1).simulate("click");
+
         expect(onChangeSpy.mock.calls[0][0]).toEqual("12:30am");
 
         wrapper.unmount();
@@ -352,7 +364,6 @@ describe("<TimePicker />", () => {
         wrapper.unmount();
     });
 
-
     test("does not allow to highlight suggestion beyond suggestion list on arrow up/down", () => {
         const wrapper = mount(
             <TimePicker
@@ -368,13 +379,13 @@ describe("<TimePicker />", () => {
         const suggestions: number[] = wrapper.state("suggestions");
 
         for (let i = 0; i < suggestions.length + 5; i++) {
-            events.keydown({ key: "ArrowDown" })
+            events.keydown({ key: "ArrowDown" });
         }
 
         expect(wrapper.state("highlightedSuggestionIndex")).toEqual(suggestions.length - 1);
 
         for (let i = 0; i < suggestions.length + 5; i++) {
-            events.keydown({ key: "ArrowUp" })
+            events.keydown({ key: "ArrowUp" });
         }
 
         expect(wrapper.state("highlightedSuggestionIndex")).toEqual(0);
