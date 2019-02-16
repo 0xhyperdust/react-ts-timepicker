@@ -62,6 +62,7 @@ hideOnScroll | boolean | `false` | Whether or not hide suggestions on window scr
 allowOnlySuggestions | boolean | `false` | Allow on suggestions values to be entered to the input. Input value will be rounded to the nearest suggestion.
 className | string | `''` | Class name of the wrapping div. Can be used for overriding default time picker styles.
 inputClass | string | `''` | Class name of the input element.
+appendTo | string / null | `body` | Element where the suggestions are appended. Takes either `string` to use as a selector or `null` to append suggestions to time picker wrapper itself.
 
 ## Time formats
 Input | Example | Description

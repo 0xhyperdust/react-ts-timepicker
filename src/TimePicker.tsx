@@ -4,6 +4,7 @@ import { Portal } from "react-portal";
 import "./styles.scss";
 
 interface IProps {
+    appendTo: string | null;
     value: Date | string | null;
     name: string;
     timeFormat: string;
@@ -36,6 +37,7 @@ const ONE_DAY_IN_SECONDS = 86400;
 class TimePicker extends React.Component<IProps, IState> {
     static defaultProps: Partial<IProps> = {
         allowOnlySuggestions: false,
+        appendTo: "body",
         hideOnScroll: false,
         includeMax: true,
         inputClass: "",
@@ -49,6 +51,7 @@ class TimePicker extends React.Component<IProps, IState> {
     };
 
     inputEl?: HTMLInputElement;
+    wrapperEl?: HTMLDivElement;
     suggestionsWrapperEl?: HTMLDivElement;
     suggestionEl?: HTMLButtonElement;
 
@@ -425,15 +428,21 @@ class TimePicker extends React.Component<IProps, IState> {
 
     positionSuggestions = () => {
         const inputBounds = this.inputEl.getBoundingClientRect();
+        const docEl = document.documentElement;
+        const scrollTop = (window.pageYOffset || docEl.scrollTop)  - (docEl.clientTop || 0);
         const suggestionsBounds = !!this.suggestionsWrapperEl && this.suggestionsWrapperEl.getBoundingClientRect();
         const suggestionsHeight = suggestionsBounds ? suggestionsBounds.height : 0;
+        const wH = window.innerHeight || docEl.clientHeight || document.body.clientHeight;
 
-        const doc = document.documentElement;
-        const scrollTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
-
-        let top = inputBounds.top + inputBounds.height + scrollTop;
-
-        const wH = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;;
+        let left;
+        let top;
+        if (this.props.appendTo === null) {
+            left = 0;
+            top = inputBounds.height;
+        } else {
+            left = inputBounds.left;
+            top = inputBounds.top + inputBounds.height + scrollTop;
+        }
 
         if (wH - (inputBounds.top + inputBounds.height) < suggestionsHeight) {
             top = inputBounds.top - suggestionsHeight + scrollTop;
@@ -441,7 +450,7 @@ class TimePicker extends React.Component<IProps, IState> {
 
         this.setState({
             suggestionsPosition: {
-                left: inputBounds.left,
+                left,
                 top,
             },
         });
@@ -516,19 +525,60 @@ class TimePicker extends React.Component<IProps, IState> {
         return Math.abs(value - suggestion) < (this.props.step * 30 / 2);
     }
 
+    renderSuggestions = () => {
+        const {
+            highlightedSuggestionIndex,
+            showSuggestions,
+            suggestionsPosition,
+            suggestions,
+            value,
+        } = this.state;
+
+        return (
+            <div
+                className="time-picker__suggestion-list"
+                ref={(el) => { this.suggestionsWrapperEl = el; }}
+                style={{
+                    display: showSuggestions ? "block" : "none",
+                    left: suggestionsPosition ? suggestionsPosition.left : -9999,
+                    top: suggestionsPosition ? suggestionsPosition.top : -9999,
+                    zIndex: 999999,
+                }}
+            >
+                {suggestions.map((suggestion: number, i: number) => (
+                    <button
+                        value={suggestion}
+                        key={`${name}-${suggestion}`}
+                        type="button"
+                        className={`time-picker__suggestion ${
+                            (highlightedSuggestionIndex !== null && highlightedSuggestionIndex === i) ||
+                            (highlightedSuggestionIndex === null && value &&
+                                this.isNearestSuggestion(value, suggestion)) ?
+                                "time-picker__suggestion_selected" : ""}`}
+                        onClick={this.onSuggestionSelect}
+                        ref={(el) => {
+                            if (i === 0) {
+                                this.suggestionEl = el;
+                            }
+                        }}
+                    >
+                        {this.convertSecondsToFormattedString(suggestion)}
+                    </button>
+                ))}
+            </div>
+        );
+    }
+
     render() {
         const {
+            appendTo,
             className,
             inputClass,
-            name,
         } = this.props;
 
         const {
             suggestions,
-            value,
             showSuggestions,
-            suggestionsPosition,
-            highlightedSuggestionIndex,
         } = this.state;
 
         return (
@@ -542,39 +592,14 @@ class TimePicker extends React.Component<IProps, IState> {
                     onClick={this.onInputClick}
                     ref={(el) => { this.inputEl = el; }}
                 />
-                {((showSuggestions && suggestions.length > 0) || this.suggestionsWrapperEl) && (
-                    <Portal>
-                        <div
-                            className="time-picker__suggestion-list"
-                            ref={(el) => { this.suggestionsWrapperEl = el; }}
-                            style={{
-                                display: showSuggestions ? "block" : "none",
-                                left: suggestionsPosition ? suggestionsPosition.left : -9999,
-                                top: suggestionsPosition ? suggestionsPosition.top : -9999,
-                            }}
-                        >
-                            {suggestions.map((suggestion: number, i: number) => (
-                                <button
-                                    value={suggestion}
-                                    key={`${name}-${suggestion}`}
-                                    className={`time-picker__suggestion ${
-                                        (highlightedSuggestionIndex !== null && highlightedSuggestionIndex === i) ||
-                                        (highlightedSuggestionIndex === null && value &&
-                                            this.isNearestSuggestion(value, suggestion)) ?
-                                            "time-picker__suggestion_selected" : ""}`}
-                                    onClick={this.onSuggestionSelect}
-                                    ref={(el) => {
-                                        if (i === 0) {
-                                            this.suggestionEl = el;
-                                        }
-                                    }}
-                                >
-                                    {this.convertSecondsToFormattedString(suggestion)}
-                                </button>
-                            ))}
-                        </div>
-                    </Portal>
-                )}
+                {((showSuggestions && suggestions.length > 0) || this.suggestionsWrapperEl) &&
+                    appendTo === null ?
+                        this.renderSuggestions() : (
+                            <Portal node={appendTo !== "body" && document && document.querySelector(appendTo)}>
+                                {this.renderSuggestions()}
+                            </Portal>
+                        )
+                }
             </div>
         );
     }
