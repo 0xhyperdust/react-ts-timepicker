@@ -17,7 +17,7 @@ $ yarn add react-ts-timepicker
 
 ## Compatibility
 
-React 16+ (internally it uses createPortal to append suggestions to the body element). Version for React 15 will be added soon.
+React 15.6+
 
 ## Basic usage
 
