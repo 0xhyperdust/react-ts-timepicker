@@ -12,6 +12,7 @@ interface IProps {
     minTime: string | null;
     maxTime: string | null;
     includeMax: boolean;
+    inputClass: string;
     className?: string;
     hideOnScroll: boolean;
     allowOnlySuggestions: boolean;
@@ -37,6 +38,7 @@ class TimePicker extends React.Component<IProps, IState> {
         allowOnlySuggestions: false,
         hideOnScroll: false,
         includeMax: true,
+        inputClass: "",
         maxTime: null,
         minTime: null,
         name: "",
@@ -517,6 +519,7 @@ class TimePicker extends React.Component<IProps, IState> {
     render() {
         const {
             className,
+            inputClass,
             name,
         } = this.props;
 
@@ -531,7 +534,7 @@ class TimePicker extends React.Component<IProps, IState> {
         return (
             <div className={`time-picker ${className}`}>
                 <input
-                    className="time-picker__input"
+                    className={`time-picker__input ${inputClass}`}
                     value={this.state.inputValue}
                     onChange={this.onInputChange}
                     onBlur={this.onInputBlur}

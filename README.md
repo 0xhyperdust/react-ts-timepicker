@@ -61,6 +61,7 @@ includeMax | boolean | `true` | Whether or not include suggestions max time.
 hideOnScroll | boolean | `false` | Whether or not hide suggestions on window scroll.
 allowOnlySuggestions | boolean | `false` | Allow on suggestions values to be entered to the input. Input value will be rounded to the nearest suggestion.
 className | string | `''` | Class name of the wrapping div. Can be used for overriding default time picker styles.
+inputClass | string | `''` | Class name of the input element.
 
 ## Time formats
 Input | Example | Description
