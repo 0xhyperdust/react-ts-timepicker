@@ -81,6 +81,29 @@ class TimePicker extends React.Component<IProps, IState> {
         document.addEventListener("keydown", this.onKeyDown);
     }
 
+    componentDidUpdate(prevProps: IProps) {
+        const { value } = this.props;
+
+        let isValueChanged = false;
+
+        if ((!prevProps.value && value) || (prevProps.value && !value)) {
+            isValueChanged = true;
+        } else if (value instanceof Date && prevProps.value instanceof Date) {
+            isValueChanged = prevProps.value.getTime() !== value.getTime();
+        } else if (typeof value === "string" && typeof prevProps.value === "string") {
+            isValueChanged = prevProps.value !== value;
+        }
+
+        if (isValueChanged) {
+            const seconds = this.convertTimeToSeconds(value);
+
+            this.setState({
+                inputValue: seconds ? this.convertSecondsToFormattedString(seconds) : "",
+                value: seconds,
+            });
+        }
+    }
+
     componentWillUnmount() {
         document.removeEventListener("keydown", this.onKeyDown);
     }
