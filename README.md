@@ -4,6 +4,11 @@
 
 This is a lightweight and easy to use time picker without dependencies for React, written in Typescript and thoroughly covered by unit tests.
 
+<img src="https://pavelandrianov.ru/react-ts-timepicker/demo.gif" width="250">
+
+## Demo
+https://codesandbox.io/s/52ll738ljk
+
 ## Installation
 
 Install plugin with npm:
