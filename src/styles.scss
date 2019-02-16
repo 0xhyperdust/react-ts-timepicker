@@ -2,19 +2,9 @@
   position: relative;
 
   &__trigger {
-    position:relative;
-    height: 30px;
+    position: relative;
+    height: 27px;
   }
-
-  //&__error{
-  //  .form-control{
-  //    border-color: #ffcfd1;
-  //    background-color: #fff1f2;
-  //  }
-  //  .nimble-icon-attention {
-  //    color: #f2bbbc;
-  //  }
-  //}
 
   &__input {
     height: 27px;
@@ -27,25 +17,7 @@
     -webkit-appearance: none;
     font-family: HelveticaNeue-Regular, Helvetica, Arial, sans-serif;
     background-image: none;
-    border: 1px solid #68b1e9;
-  }
-
-  &__icon.add-on{
-    position: absolute;
-    right: 4px;
-    top: 0;
-    height: 100%;
-    cursor: pointer;
-    padding-top: 10px;
-    i{
-      line-height: 32px;
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      &:before{
-        float:left;
-      }
-    }
+    border: 1px solid #1980EC;
   }
 
   &__suggestion-list {
@@ -68,10 +40,6 @@
     left: 0;
   }
 
-  &__suggestion-list-scroll-container {
-
-  }
-
   &__suggestion {
     display: block;
     width: 100%;
@@ -87,7 +55,7 @@
     background: 0 0;
 
     &_selected, &:hover, &:focus {
-      background: #1980ec;
+      background: #1980EC;
       color: #fff;
     }
   }
