@@ -276,6 +276,12 @@ class TimePicker extends React.Component<IProps, IState> {
                 }
                 break;
             }
+            case "Tab": {
+                if (this.state.showSuggestions) {
+                    this.hideSuggestions();
+                }
+                break;
+            }
             default:
         }
     }
@@ -579,6 +585,7 @@ class TimePicker extends React.Component<IProps, IState> {
                                 this.isNearestSuggestion(value, suggestion)) ?
                                 "time-picker__suggestion_selected" : ""}`}
                         onClick={this.onSuggestionSelect}
+                        tabIndex={-1}
                         ref={(el) => {
                             if (i === 0) {
                                 this.suggestionEl = el;
