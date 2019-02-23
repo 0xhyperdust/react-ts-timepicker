@@ -563,7 +563,11 @@ class TimePicker extends React.Component<IProps, IState> {
             value,
         } = this.state;
 
-        return (
+        const {
+            appendTo,
+        } = this.props;
+
+        const markup = (
             <div
                 className="time-picker__suggestion-list"
                 ref={(el) => { this.suggestionsWrapperEl = el; }}
@@ -596,12 +600,21 @@ class TimePicker extends React.Component<IProps, IState> {
                     </button>
                 ))}
             </div>
+        )
+
+        if (appendTo === null) {
+            return markup;
+        }
+
+        return (
+            <Portal node={appendTo !== "body" && document && document.querySelector(appendTo)}>
+                {markup}
+            </Portal>
         );
     }
 
     render() {
         const {
-            appendTo,
             className,
             inputClass,
         } = this.props;
@@ -623,12 +636,7 @@ class TimePicker extends React.Component<IProps, IState> {
                     ref={(el) => { this.inputEl = el; }}
                 />
                 {((showSuggestions && suggestions.length > 0) || this.suggestionsWrapperEl) &&
-                    appendTo === null ?
-                        this.renderSuggestions() : (
-                            <Portal node={appendTo !== "body" && document && document.querySelector(appendTo)}>
-                                {this.renderSuggestions()}
-                            </Portal>
-                        )
+                    this.renderSuggestions()
                 }
             </div>
         );
